@@ -1,0 +1,4 @@
+image-id-pattern='  OPTIONAL { ?imageIRI (crmdig:L60i_is_documented_by/crmdig:L11_had_output/rso:PX_has_file_name) ?carrierImageID. }
+OPTIONAL { ?imageIRI (crmdig:L60i_is_documented_by/crmdig:L11_had_output) ?externalIIIFService. ?externalIIIFService a crmdig:D1_Digital_Object. }
+BIND(COALESCE(?carrierImageID, ?externalIIIFService, REPLACE(STR(?imageIRI), "^.*/(.*)$", "$1")) AS ?imageID)'
+iiif-server-url='/digilib/Scaler/IIIF'
