@@ -37,7 +37,18 @@ src/main/webapp/assets/bundles-manifest.json
 *.iws
 
 # runtime
-/runtime-data*
+runtime-data/**
+!runtime-data/config
+runtime-data/config/**
+!runtime-data/config/ui.prop
+!runtime-data/data
+runtime-data/data/**
+!runtime-data/data/templates
+runtime-data/data/templates/**
+!runtime-data/data/templates/**
 
 # Mac
 .DS_Store
+
+#development envs
+.java-version

@@ -151,8 +151,9 @@
 
         height: 100%;
         width: 100%;
-        object-fit: cover;
-        object-position: 50% 0%;
+        object-fit: contain;//cover;
+        //object-position: 50% 0%;
+        //adapt for extreme wide and tall images: Raphael Chau
         min-height: 142px;
     }
 

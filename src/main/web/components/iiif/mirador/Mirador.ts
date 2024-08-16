@@ -177,7 +177,8 @@ Mirador.AnnotationTooltip.prototype.editorTemplate = globalHandlebars.compile(
  */
 const MiradorOpenSeadragon = Mirador.OpenSeadragon;
 Mirador.OpenSeadragon = function (options) {
-  options.maxZoomPixelRatio = Infinity;
+  //options.maxZoomPixelRatio = Infinity;
+  //override RS default unlimited zoom
   return MiradorOpenSeadragon(options);
 };
 
