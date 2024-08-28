@@ -40,6 +40,7 @@ export interface ImageOrRegionInfo {
   viewport?: ImageSubarea;
   svgContent?: { __html: string };
   imageIRI: Rdf.Iri;
+  repr_subjectIRI? : Rdf.Iri;
 }
 
 export type ExplicitRegion = {

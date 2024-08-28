@@ -38,7 +38,9 @@ import {
   ImageRegionValue,
   ImageRegionViewport,
   ImageRegionIsPrimaryAreaOf,
+  ImageRegionIsRepresentationOfFrame,
   ImageRegionFields,
+  ImageRegionFieldsRecursiveAnnotation,
 } from './ImageRegionSchema';
 
 const IIIF_PRESENTATION_CONTEXT = require('./ld-resources/iiif-context.json');
@@ -74,8 +76,8 @@ export class LdpRegionServiceClass extends LdpService {
   /**
    * Add new annotation
    */
-  public addRegion(region: Region): Kefir.Property<Rdf.Iri> {
-    const currentModel = convertAnnotationToCompositeValue(region.annotation);
+  public addRegion(region: Region, type?: String, resourceIri?: Rdf.Iri): Kefir.Property<Rdf.Iri> {
+    const currentModel = convertAnnotationToCompositeValue(region.annotation, type, resourceIri);
     return this.persistence.persist(Forms.FieldValue.empty, currentModel).map(() => {
       return currentModel.subject;
     });
@@ -106,6 +108,22 @@ export class LdpRegionServiceClass extends LdpService {
   public search(resourceIri: Rdf.Iri): Kefir.Property<OARegionAnnotation[]> {
     // we assume that regions are always stored in the default repository
     return SparqlClient.select(this.selectForRegions(resourceIri), { context: { repository: 'default' } })
+      .flatMap((result) => {
+        if (result.results.bindings.length === 0) {
+          return Kefir.constant<OARegionAnnotation[]>([]);
+        }
+        return Kefir.combine<OARegionAnnotation>(
+          result.results.bindings.map((row) => this.getRegionFromSparql(<Rdf.Iri>row['region']))
+        );
+      })
+      .map((regions) => regions.filter((region) => Boolean(region['@id'])))
+      .toProperty();
+  }
+
+  public searchForRecursiveAnnotation(repr_subject_Iri: Rdf.Iri, resourceIri: Rdf.Iri): Kefir.Property<OARegionAnnotation[]> {
+    // we assume that regions are always stored in the default repository
+    console.log("aaa", this.selectForRegionsRecursiveAnnotation(repr_subject_Iri, resourceIri))
+    return SparqlClient.select(this.selectForRegionsRecursiveAnnotation(repr_subject_Iri, resourceIri), { context: { repository: 'default' } })
       .flatMap((result) => {
         if (result.results.bindings.length === 0) {
           return Kefir.constant<OARegionAnnotation[]>([]);
@@ -160,6 +178,35 @@ export class LdpRegionServiceClass extends LdpService {
   select ?region where {
   ?region crmdig:L49_is_primary_area_of ${resourceIri}.
 }`;
+  }
+
+  private selectForRegionsRecursiveAnnotation(repr_subject_Iri: Rdf.Iri, resourceIri: Rdf.Iri): string {
+    return `PREFIX crmdig: <http://www.ics.forth.gr/isl/CRMdig/>
+PREFIX rso: <http://www.researchspace.org/ontology/>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX : <http://www.researchspace.org/resource/>
+SELECT DISTINCT ?region
+WHERE {
+  {
+    ?region crmdig:L49_is_primary_area_of ${resourceIri} .
+    OPTIONAL 
+    { 
+      ?repr_subject (crm:P138i_has_representation|rs:PX_has_main_representation) ?region. 
+      ?repr_subject a ?repr_subject_type.
+                OPTIONAL 
+            {      
+            ?framing crm:P140_assigned_attribute_to ?repr_subject_parent.
+            ?framing crm:P141_assigned ?repr_subject.
+            ?framing crm:P177_assigned_property_of_type crm:P46_is_composed_of.
+    				?repr_subject_parent a ?repr_subject_type_parent. 
+          }
+    }
+            FILTER ( ?repr_subject = ${repr_subject_Iri} || ?repr_subject_parent = ${repr_subject_Iri} ||  ?repr_subject_type != <http://murtenannotation.local/ver1/Frame> )
+     OPTIONAL {
+    ?region crm:P190_has_symbolic_content ?title.
+    }
+  }
+ }`;
   }
 
   private regionQuery = `
@@ -244,16 +291,17 @@ export function getAnnotationTextResource(annotation: OARegionAnnotation): { cha
   }
 }
 
-export function convertAnnotationToCompositeValue(annotation: OARegionAnnotation): Forms.CompositeValue {
+export function convertAnnotationToCompositeValue(annotation: OARegionAnnotation, type?: String, resourceIri?: Rdf.Iri): Forms.CompositeValue {
+  const Fields = (type === "recursive") ? ImageRegionFieldsRecursiveAnnotation : ImageRegionFields
   const initial: Forms.CompositeValue = {
     type: Forms.CompositeValue.type,
     subject: Rdf.iri(annotation['@id']),
-    definitions: Immutable.Map<string, Forms.FieldDefinition>(ImageRegionFields.map((field) => [field.id, field])),
+    definitions: Immutable.Map<string, Forms.FieldDefinition>(Fields.map((field) => [field.id, field])),
     fields: Immutable.Map<string, Forms.FieldState>(),
     errors: Forms.FieldError.noErrors,
   };
   const textResource = getAnnotationTextResource(annotation);
-  const fieldStates: Array<[string, Forms.FieldState]> = ImageRegionFields.map((field) => {
+  const fieldStates: Array<[string, Forms.FieldState]> = Fields.map((field) => {
     let values: Immutable.List<Forms.FieldValue>;
     let fieldState = Forms.FieldState.empty;
     if (field.id === ImageRegionType.id) {
@@ -289,12 +337,23 @@ export function convertAnnotationToCompositeValue(annotation: OARegionAnnotation
           return Forms.FieldValue.fromLabeled({ value });
         })
       );
+    } else if (field.id === ImageRegionIsRepresentationOfFrame.id) {
+      console.log("aaa resourceIri", resourceIri)
+      values = Immutable.List<Forms.FieldValue>(
+        [resourceIri].map((value) => {
+          return Forms.FieldValue.fromLabeled({ value });
+        })
+      );
     }
     fieldState = Forms.FieldState.set(fieldState, { values });
     return [field.id, fieldState];
   });
   const subject = Forms.generateSubjectByTemplate(SubjectTemplate, undefined, initial);
   const fields = Immutable.Map<string, Forms.FieldState>(fieldStates);
+  console.log("aaa initial",  initial)
+  console.log("aaa subject",  subject)
+  console.log("aaa fields",  fields)
+
   return Forms.CompositeValue.set(initial, { subject, fields });
 }
 

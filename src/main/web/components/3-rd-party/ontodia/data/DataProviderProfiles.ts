@@ -187,7 +187,23 @@ UNION
 }
 `,
 
+// Experimental: fix duplicate link due to subclass inference
   linkTypesStatisticsQuery: `SELECT ?link ?outCount ?inCount WHERE {
+  {
+    SELECT (\${linkId} as ?link) (count(DISTINCT ?outObject) as ?outCount) WHERE {
+      \${linkConfigurationOut} .
+      \${navigateElementFilterOut}
+    } LIMIT 101
+  }
+  {
+    SELECT (\${linkId} as ?link) (count(DISTINCT ?inObject) as ?inCount) WHERE {
+      \${linkConfigurationIn} .
+      \${navigateElementFilterIn}
+    } LIMIT 101
+  }
+}`,
+/*
+linkTypesStatisticsQuery: `SELECT ?link ?outCount ?inCount WHERE {
   {
     SELECT (\${linkId} as ?link) (count(?outObject) as ?outCount) WHERE {
       \${linkConfigurationOut} .
@@ -201,7 +217,7 @@ UNION
     } LIMIT 101
   }
 }`,
-
+*/
   filterRefElementLinkPattern: '',
   filterTypePattern: `?inst a ?instType. ?instType rdfs:subClassOf* ?class`,
   filterElementInfoPattern: `OPTIONAL { ?inst rdf:type ?foundClass }

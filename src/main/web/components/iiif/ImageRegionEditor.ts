@@ -41,6 +41,7 @@ import { ManifestUpdatedEvent, ZoomToRegionEvent, IiifManifestResource, AddResou
 import { renderMirador, removeMirador, scrollToRegions, scrollToRegion } from './mirador/Mirador';
 import { computeDisplayedRegionWithMargin } from './ImageThumbnail';
 import { OARegionAnnotation, getAnnotationTextResource } from 'platform/data/iiif/LDPImageRegionService';
+import { convertCompositeValueToElementModel } from '../3-rd-party/ontodia/authoring/OntodiaPersistenceCommon';
 
 export interface ImageRegionEditorConfig {
   id?: string;
@@ -48,6 +49,7 @@ export interface ImageRegionEditorConfig {
   imageIdPattern: string;
   iiifServerUrl: string;
   repositories?: Array<string>;
+  type?:string;
 
   /**
    * Use details sidebar instead of built-in mirador details view
@@ -113,6 +115,7 @@ export class ImageRegionEditorComponentMirador extends Component<ImageRegionEdit
   }
 
   private normalizeImageProps({ imageOrRegion }: ImageRegionEditorProps) {
+    console.log("aaa imageOrRegion", imageOrRegion)
     if (typeof imageOrRegion === 'string') {
       return [
         { resourceIri: imageOrRegion, images: [imageOrRegion] },
@@ -140,8 +143,13 @@ export class ImageRegionEditorComponentMirador extends Component<ImageRegionEdit
     (eventType: typeof RegionCreatedEvent | typeof RegionUpdatedEvent | typeof RegionRemovedEvent) =>
     (regionIri: Rdf.Iri, oa: OARegionAnnotation) => {
       const imageIri = oa.on[0].full;
-      const resourceIri = this.state.allImages.find(i => i.images.includes(imageIri)).resourceIri;
+      console.log("aaa this.state.allImages", this.state.allImages)
+      console.log("aaa all",    imageIri, regionIri.value, getAnnotationTextResource(oa).chars)
+      //const resourceIri = this.state.allImages.find(i => i.images.includes(imageIri)).resourceIri
+      const resourceIri = (this.state.allImages.find(i => i.images.includes(imageIri))) ? this.state.allImages.find(i => i.images.includes(imageIri)).resourceIri : this.state.allImages[0].resourceIri; // multi-select image unsupported (Raphael Chau)
       const regionLabel = getAnnotationTextResource(oa).chars;
+      console.log("aaa all after",    resourceIri, imageIri, regionIri.value, regionLabel)
+
       trigger({
         eventType,
         source: this.props.id,
@@ -513,13 +521,20 @@ export class ImageRegionEditorComponentMirador extends Component<ImageRegionEdit
       annotationViewTooltipTemplate,
     } = this.props;
     const imagesInfo = this.state.info as ImagesInfoByIri;
-
-    this.annotationEndpoint = new AnnotationEndpointProxy(
-      annotationEndpoint || new LdpAnnotationEndpoint({ imagesInfo }),
-      this.triggerRegionUpdatedEvent(RegionCreatedEvent),
-      this.triggerRegionUpdatedEvent(RegionUpdatedEvent),
-      this.triggerRegionUpdatedEvent(RegionRemovedEvent),
-    );
+    const resourceIri = Rdf.iri(this.state.allImages[0].resourceIri); // not yet support multi-select image (Raphael Chau) 
+    this.annotationEndpoint = (this.props.type === "recursive")
+      ? new AnnotationEndpointProxyRecursiveAnnotation(
+          annotationEndpoint || new LdpAnnotationEndpoint({ imagesInfo, resourceIri }),
+          this.triggerRegionUpdatedEvent(RegionCreatedEvent),
+          this.triggerRegionUpdatedEvent(RegionUpdatedEvent),
+          this.triggerRegionUpdatedEvent(RegionRemovedEvent),
+        )
+      : new AnnotationEndpointProxy(
+          annotationEndpoint || new LdpAnnotationEndpoint({ imagesInfo }),
+          this.triggerRegionUpdatedEvent(RegionCreatedEvent),
+          this.triggerRegionUpdatedEvent(RegionUpdatedEvent),
+          this.triggerRegionUpdatedEvent(RegionRemovedEvent),
+        );
 
     const windowObjects: Mirador.WindowObject[] =
       manifests.length > 1 ? [] : [{
@@ -614,10 +629,10 @@ export class ImageRegionEditorComponentMirador extends Component<ImageRegionEdit
 
 class AnnotationEndpointProxy implements AnnotationEndpoint {
   constructor(
-    private endpoint: AnnotationEndpoint,
-    private onCreated: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
-    private onUpdated: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
-    private onRemoved: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
+    protected endpoint: AnnotationEndpoint,
+    protected onCreated: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
+    protected onUpdated: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
+    protected onRemoved: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
   ) {}
 
   init = this.endpoint.init ? () =>  {
@@ -646,6 +661,31 @@ class AnnotationEndpointProxy implements AnnotationEndpoint {
   userAuthorize = this.endpoint.userAuthorize ? (action: any, annotation: OARegionAnnotation) => {
     return this.endpoint.userAuthorize(action, annotation);
   } : undefined;
+}
+
+class AnnotationEndpointProxyRecursiveAnnotation extends AnnotationEndpointProxy {
+  // Constructor: Use the same constructor as the parent class
+  constructor(
+   endpoint: AnnotationEndpoint,
+   onCreated: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
+   onUpdated: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
+   onRemoved: (regionIri: Rdf.Iri, oa: OARegionAnnotation) => void,
+  ) {
+    // Call the parent constructor
+    super(endpoint, onCreated, onUpdated, onRemoved);
+  }
+
+  // Override the search method
+  search(canvasIri: Rdf.Iri) {
+    console.log("aaa", "RecursiveAnnotation" )
+    return this.endpoint.searchForRecursiveAnnotation(canvasIri);
+  }
+
+  create(annotation: OARegionAnnotation) {
+    return this.endpoint.createRecursiveAnnotation(annotation)
+      .onValue(regionIri => this.onCreated(regionIri, annotation));
+  }
+
 }
 
 export type c = ImageRegionEditorComponentMirador;

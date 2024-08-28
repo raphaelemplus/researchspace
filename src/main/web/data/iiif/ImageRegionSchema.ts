@@ -85,6 +85,48 @@ export const ImageRegionIsPrimaryAreaOf = Forms.normalizeFieldDefinition({
   }`,
 });
 
+export const ImageRegionIsRepresentationOfFrame = Forms.normalizeFieldDefinition({
+  id: 'isRepresentationOfFrame',
+  xsdDatatype: vocabularies.xsd.anyURI,
+  insertPattern: `INSERT {
+      #creation of framing activity
+      ?framing crm:P140_assigned_attribute_to $value.
+      ?framing crm:P141_assigned ?frame.
+      ?framing crm:P177_assigned_property_of_type crm:P46_is_composed_of.
+      ?frame a <http://murtenannotation.local/ver1/Frame>.
+    		$subject rs:PX_main_represents $frame .
+    		?frame rs:PX_has_main_representation $subject .
+      ?framing a <http://murtenannotation.local/ver1/Framing>.
+      ?framing crm:P14_carried_out_by ?__useruri__.
+      ?__useruri__ a crm:E39_Actor.
+
+      #creation of frame appellation
+      $frame crm:P1_is_identified_by ?frame_appellation . 
+      ?frame_appellation a crm:E41_Appellation . 
+      ?frame_appellation crm:P2_has_type <http://www.researchspace.org/resource/system/vocab/resource_type/primary_appellation> . 
+      ?frame_appellation crm:P190_has_symbolic_content ?frame_appellation_value.
+
+      #creation of framing appellation
+      $framing crm:P1_is_identified_by ?framing_appellation . 
+      ?framing_appellation a crm:E41_Appellation . 
+      ?framing_appellation crm:P2_has_type <http://www.researchspace.org/resource/system/vocab/resource_type/primary_appellation> . 
+      ?framing_appellation crm:P190_has_symbolic_content ?framing_appellation_value.
+
+  } WHERE {
+      BIND(IRI(IF(STRSTARTS(STR($value), CONCAT(STRBEFORE(STR($value), "/frame/"), "/frame/")), STRBEFORE(STR($value), "/frame/"), STR($value))) AS ?E22orE25)
+      BIND(STRUUID() as ?frame_UUID).
+      BIND(URI(CONCAT(str(?E22orE25), str("/frame/"), ?frame_UUID)) as ?frame).
+      BIND(URI(CONCAT(STR($frame), "/primary_appellation") ) as $frame_appellation)
+      BIND(URI(CONCAT(str(?frame), str("/framing/"))) as ?framing).
+      BIND(URI(CONCAT(STR($framing), "/primary_appellation") ) as $framing_appellation)
+      BIND(CONCAT('frame-', ?frame_UUID) as ?frame_appellation_value)
+      BIND(CONCAT('framing-', ?frame_UUID) as ?framing_appellation_value)
+  }`,
+  selectPattern: `SELECT ?value WHERE {
+    $subject <http://www.ics.forth.gr/isl/CRMdig/L49_is_primary_area_of> ?value .
+  }`,
+});
+
 export const ImageRegionFields: ReadonlyArray<Forms.FieldDefinition> = [
   ImageRegionType,
   ImageRegionLabel,
@@ -92,4 +134,14 @@ export const ImageRegionFields: ReadonlyArray<Forms.FieldDefinition> = [
   ImageRegionValue,
   ImageRegionViewport,
   ImageRegionIsPrimaryAreaOf,
+];
+
+export const ImageRegionFieldsRecursiveAnnotation: ReadonlyArray<Forms.FieldDefinition> = [
+  ImageRegionType,
+  ImageRegionLabel,
+  ImageRegionBoundingBox,
+  ImageRegionValue,
+  ImageRegionViewport,
+  ImageRegionIsPrimaryAreaOf,
+  ImageRegionIsRepresentationOfFrame,
 ];

@@ -20,12 +20,12 @@ mappings/
 
 #build specific
 node_modules/
+/src/main/webapp/assets/
 .log
 /webpack/tests_out/
 /webpack/*.log.*
 tsconfig.tsbuildinfo
 dist/docker/
-src/main/webapp/assets/bundles-manifest.json
 
 # emacs
 .#*
@@ -52,3 +52,6 @@ runtime-data/data/templates/**
 
 #development envs
 .java-version
+.nvmrc
+
+/researchspace-docker-compose*

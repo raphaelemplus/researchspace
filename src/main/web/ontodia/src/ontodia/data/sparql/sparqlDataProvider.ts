@@ -842,6 +842,12 @@ export function executeSparqlQuery<Binding>(
       method: 'POST',
     });
   }
+  console.log("aaa endpoint", endpoint)
+
+  console.log("aaa query", query)
+  console.log("aaa method", method)
+  console.log("aaa queryFunction", queryFunction)
+
   return internalQuery.then(
     (response): Promise<SparqlResponse<Binding>> => {
       if (response.ok) {

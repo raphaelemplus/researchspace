@@ -147,10 +147,23 @@ class ImageThumbnailComponent extends Component<Props, State> {
           ? computeDisplayedRegionWithMargin(info.boundingBox, bounds, REGION_OVERLAY_MARGIN_FRACTION)
           : undefined;
       requestParams.region = requestedRegion;
+      console.log("aaa width", requestedRegion,width, height, (!width), (!height))
       if (width || height) {
-        requestParams.size = new ImageApi.Size.BestFit(width, height);
+
+          const bestfitWidth = (requestedRegion) 
+            ? Math.min(requestedRegion.width, width) 
+            : width;
+        
+          const bestfitHeight = (requestedRegion) 
+            ? Math.min(requestedRegion.height, height) 
+            : height;      
+        
+          //const bestfitHeight = (requestedRegion.height <= height) ? requestedRegion.height : height
+          requestParams.size = new ImageApi.Size.BestFit(width, height);
+          console.log("aaa best", requestParams.size, bestfitWidth, bestfitHeight)
       }
       const imageUri = ImageApi.constructImageUri(iiifServerUrl, requestParams);
+      console.log("aaa imageUri", iiifServerUrl, requestParams, imageUri)
       return {
         iiifUri: imageUri,
         info: info,

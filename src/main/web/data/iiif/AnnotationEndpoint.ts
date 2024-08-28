@@ -23,11 +23,14 @@ import { Rdf } from 'platform/api/rdf';
 import { LdpRegionService, OARegionAnnotation } from './LDPImageRegionService';
 
 import { ImageOrRegionInfo } from './ImageAnnotationService';
+import { RdfIri } from 'platform/ontodia/src/ontodia';
 
 export interface AnnotationEndpoint {
   init?: () => void;
   search?: (canvasIri: Rdf.Iri) => Kefir.Property<OARegionAnnotation[]>;
+  searchForRecursiveAnnotation?: (canvasIri: Rdf.Iri) => Kefir.Property<OARegionAnnotation[]>;
   create?: (annotation: OARegionAnnotation) => Kefir.Property<Rdf.Iri>;
+  createRecursiveAnnotation?: (annotation: OARegionAnnotation, type?: String) => Kefir.Property<Rdf.Iri>;
   update?: (annotation: OARegionAnnotation) => Kefir.Property<Rdf.Iri>;
   remove?: (annotationIri: OARegionAnnotation) => Kefir.Property<void>;
   userAuthorize?: (action: any, annotation: OARegionAnnotation) => boolean;
@@ -37,9 +40,11 @@ export type ImagesInfoByIri = Map<string, ImageOrRegionInfo>;
 
 export class LdpAnnotationEndpoint implements AnnotationEndpoint {
   private readonly imagesInfo: ImagesInfoByIri;
+  private readonly resourceIri: Rdf.Iri;
 
-  constructor(options: { imagesInfo?: ImagesInfoByIri }) {
+  constructor(options: { imagesInfo?: ImagesInfoByIri , resourceIri?}) {
     this.imagesInfo = options.imagesInfo || new Map<string, ImageOrRegionInfo>();
+    this.resourceIri = options.resourceIri
   }
 
   search(canvasIri: Rdf.Iri) {
@@ -56,8 +61,27 @@ export class LdpAnnotationEndpoint implements AnnotationEndpoint {
     return annotationList;
   }
 
+  searchForRecursiveAnnotation(canvasIri: Rdf.Iri) {
+    console.log("aaa", "RecursiveAnnotation-child" )
+    let annotationList = LdpRegionService.searchForRecursiveAnnotation(this.resourceIri, canvasIri);
+    // filtering specific image region if we're called to display only one region.
+    // This is overhead, all regions are retreived and only one is used,
+    // but i'm unshure should we change API here
+    const imageInfo = this.imagesInfo.get(canvasIri.value);
+    if (imageInfo && imageInfo.isRegion) {
+      annotationList = annotationList.map((list) =>
+        list.filter((annotation) => annotation['@id'] === imageInfo.iri.value)
+      );
+    }
+    return annotationList;
+  }
+
   create(annotation: OARegionAnnotation) {
     return LdpRegionService.addRegion({ annotation });
+  }
+
+  createRecursiveAnnotation(annotation: OARegionAnnotation) {
+    return LdpRegionService.addRegion({ annotation }, "recursive", this.resourceIri);
   }
 
   update(annotation: OARegionAnnotation) {

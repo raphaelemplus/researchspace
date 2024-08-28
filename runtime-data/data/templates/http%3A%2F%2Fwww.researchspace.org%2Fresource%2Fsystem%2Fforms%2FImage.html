@@ -6,7 +6,7 @@
                             inScheme="http://www.researchspace.org/pattern/system/entity/is_listed_in"
                             entity_formRecord="http://www.researchspace.org/pattern/system/entity/formRecord"
                             
-                            entity_file_identifier="http://murten/kp/file_identifier"
+                            entity_file_identifier="http://www.researchspace.org/pattern/system/entity/file_identifierMin0"
                             entity_iiif_service="http://murten/kp/iiif_service"
                             
                             entity_primary_appellation="http://www.researchspace.org/pattern/system/entity/primary_appellation"
@@ -1082,6 +1082,25 @@
                                             generate-iri-query='SELECT ?resourceIri {
                                                                     BIND(IRI(CONCAT(STR(Default:), "EX_File/", ?__fileName__)) AS ?resourceIri) .
                                                                 }'
+                                            field='
+
+                              [ {
+                                "iri" : "http://www.researchspace.org/pattern/system/entity/file_identifier",
+                                "deletePattern" : "DELETE { \n  $subject crmdig:L60i_is_documented_by ?digitizationProcess .\n  ?digitizationProcess a crmdig:D2_Digitization_Process .    \n  ?digitizationProcess crmdig:L11_had_output $value . \n} WHERE { \n  $subject crmdig:L60i_is_documented_by ?digitizationProcess .\n  ?digitizationProcess a crmdig:D2_Digitization_Process .    \n  ?digitizationProcess crmdig:L11_had_output $value . \n      \n  ?value a rs:EX_File .\n}",
+                                "selectPattern" : "SELECT DISTINCT ?value ?label WHERE {\n  $subject crmdig:L60i_is_documented_by ?digitizationProcess .\n  ?digitizationProcess a crmdig:D2_Digitization_Process .    \n  ?digitizationProcess crmdig:L11_had_output $value . \n      \n  ?value a rs:EX_File .\n  ?value rs:PX_has_file_name ?label .\n}",
+                                "minOccurs" : "0",
+                                "range" : [ "http://www.researchspace.org/ontology/EX_File" ],
+                                "label" : "File identifier",
+                                "insertPattern" : "INSERT { \n  $subject crmdig:L60i_is_documented_by ?digitizationProcess .\n  ?digitizationProcess a crmdig:D2_Digitization_Process .    \n  ?digitizationProcess crmdig:L11_had_output $value . \n} WHERE {\n\tBIND(URI(CONCAT(str($subject),\"/digitization_process\")) as ?digitizationProcess)\n}",
+                                "xsdDatatype" : "http://www.w3.org/2001/XMLSchema#anyURI",
+                                "domain" : [ "http://www.cidoc-crm.org/cidoc-crm/E1_CRM_Entity" ],
+                                "defaultValues" : [ ],
+                                "maxOccurs" : "1",
+                                "id" : "example",
+                                "order" : 0
+                              } ]
+                                                            
+                                            '
                 >
                 <div className='placeholder-item'>
                     <rs-icon icon-type='round' icon-name='file_upload' class='upload_icon'></rs-icon>

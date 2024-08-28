@@ -80,8 +80,8 @@ export namespace Size {
   export class Absolute extends Rectangular {}
   export class BestFit extends Rectangular {
     toString() {
-      //return '!' + super.toString(); fit IIIF server that does not support !, changed by Raphael Chau
-      return super.toString();
+      return '!' + super.toString(); //fit IIIF server that does not support !, changed by Raphael Chau
+      //return super.toString();
     }
   }
   export class Percent extends Size {
@@ -126,6 +126,8 @@ export enum Quality {
 export function constructImageUri(serverAndPrefix: string, params: ImageRequestParams) {
   const region = params.region || Region.full;
   const size = params.size || Size.full;
+  console.log("aaa region", region)
+  console.log("aaa size", size)
   const rotation = params.rotation || Rotation.zero;
   const quality = Quality[params.quality || Quality.Default].toLowerCase();
   const format = params.format;
