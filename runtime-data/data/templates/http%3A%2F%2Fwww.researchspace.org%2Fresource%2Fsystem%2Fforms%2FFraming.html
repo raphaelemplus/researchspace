@@ -500,8 +500,7 @@
                                                         mode_of_use="http://www.researchspace.org/pattern/system/used_specific_object/mode_of_use"
                                                     ]]'>
 
-                <semantic-form-hidden-input for="classtype" default-value='http://www.cidoc-crm.org/cidoc-crm/PC16_used_specific_object'> </semantic-form-hidden-input>
-                <semantic-form-hidden-input for="entity_has_type" default-value='http://www.researchspace.org/resource/system/vocab/resource_type/interpretation_context'> </semantic-form-hidden-input>
+                <semantic-form-hidden-input for="classtype" default-value='http://murtenannotation.local/ver1/Interpretation_Context'> </semantic-form-hidden-input>
                 
                 <div class="form-inline-inputs">
                   <div style="flex: 1;">
@@ -518,18 +517,18 @@
                                                       render-header="false"
                                                       placeholder="Select mode of use"
                                                       close-dropdown-on-selection='true'
-                                                      tree-patterns='{"scheme": "<http://www.researchspace.org/resource/vocab/mode_of_use>", 
-                                                                      "schemePattern": "?item <http://www.cidoc-crm.org/cidoc-crm/P71i_is_listed_in> <http://www.researchspace.org/resource/vocab/mode_of_use>",
+                                                      tree-patterns='{"scheme": "<http://www.researchspace.org/resource/system/vocab/interpretation_criterion>", 
+                                                                      "schemePattern": "?item <http://www.cidoc-crm.org/cidoc-crm/P71i_is_listed_in> <http://www.researchspace.org/resource/system/vocab/interpretation_criterion>",
                                                                       "relationPattern": "?item crm:P127_has_broader_term ?parent"}'
 
                                                       scheme-page-button-config='{"iri": "http://www.researchspace.org/resource/ThinkingFrames",
                                                                                   "view": "vocabulary-content",
-                                                                                  "scheme": "http://www.researchspace.org/resource/vocab/mode_of_use",
+                                                                                  "scheme": "http://www.researchspace.org/resource/system/vocab/interpretation_criterion",
                                                                                   "tooltip": "Open list of modes of use"
                                                                                 }'
                                                       
                                                       nested-form-template='{{{{raw}}}}{{> forms:Type nested=true editable=true mode="new"
-                                                                                            scheme="http://www.researchspace.org/resource/vocab/mode_of_use"
+                                                                                            scheme="http://www.researchspace.org/resource/system/vocab/interpretation_criterion"
                                                                                             entityType="mode of use" }}{{{{/raw}}}}'
 
                                                       query-item-label='SELECT ?label WHERE {
