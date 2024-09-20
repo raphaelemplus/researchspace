@@ -62,7 +62,6 @@ export class LdpAnnotationEndpoint implements AnnotationEndpoint {
   }
 
   searchForRecursiveAnnotation(canvasIri: Rdf.Iri) {
-    console.log("aaa", "RecursiveAnnotation-child" )
     let annotationList = LdpRegionService.searchForRecursiveAnnotation(this.resourceIri, canvasIri);
     // filtering specific image region if we're called to display only one region.
     // This is overhead, all regions are retreived and only one is used,

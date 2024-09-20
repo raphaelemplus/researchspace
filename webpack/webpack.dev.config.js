@@ -51,8 +51,9 @@ module.exports = function() {
 
     config.output.pathinfo = false;
 
-    config.output.publicPath = 'http://localhost:3000/assets/no_auth/';
+    config.output.publicPath = '/assets/no_auth/';
     config.devServer = {
+        allowedHosts: "all",
         port: 3000,
         static: {
             directory: './src/main/webapp',

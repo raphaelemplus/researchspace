@@ -55,3 +55,9 @@ runtime-data/data/templates/**
 .nvmrc
 
 /researchspace-docker-compose*
+
+# shiro local
+#src/main/resources/org/researchspace/apps/default/config/shiro.ini
+
+#webpack
+#src/main/webapp/assets/bundles-manifest.json

@@ -115,7 +115,6 @@ export class ImageRegionEditorComponentMirador extends Component<ImageRegionEdit
   }
 
   private normalizeImageProps({ imageOrRegion }: ImageRegionEditorProps) {
-    console.log("aaa imageOrRegion", imageOrRegion)
     if (typeof imageOrRegion === 'string') {
       return [
         { resourceIri: imageOrRegion, images: [imageOrRegion] },
@@ -143,12 +142,9 @@ export class ImageRegionEditorComponentMirador extends Component<ImageRegionEdit
     (eventType: typeof RegionCreatedEvent | typeof RegionUpdatedEvent | typeof RegionRemovedEvent) =>
     (regionIri: Rdf.Iri, oa: OARegionAnnotation) => {
       const imageIri = oa.on[0].full;
-      console.log("aaa this.state.allImages", this.state.allImages)
-      console.log("aaa all",    imageIri, regionIri.value, getAnnotationTextResource(oa).chars)
       //const resourceIri = this.state.allImages.find(i => i.images.includes(imageIri)).resourceIri
       const resourceIri = (this.state.allImages.find(i => i.images.includes(imageIri))) ? this.state.allImages.find(i => i.images.includes(imageIri)).resourceIri : this.state.allImages[0].resourceIri; // multi-select image unsupported (Raphael Chau)
       const regionLabel = getAnnotationTextResource(oa).chars;
-      console.log("aaa all after",    resourceIri, imageIri, regionIri.value, regionLabel)
 
       trigger({
         eventType,
@@ -677,7 +673,6 @@ class AnnotationEndpointProxyRecursiveAnnotation extends AnnotationEndpointProxy
 
   // Override the search method
   search(canvasIri: Rdf.Iri) {
-    console.log("aaa", "RecursiveAnnotation" )
     return this.endpoint.searchForRecursiveAnnotation(canvasIri);
   }
 

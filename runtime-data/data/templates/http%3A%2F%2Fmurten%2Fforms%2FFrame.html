@@ -82,6 +82,107 @@
 
         <mp-splitpane id='{{viewId}}-entity-resource-sidebar' min-size=63 default-size=370 snap-threshold=200 default-open=true always-render=true primary='second' class="entity-resource-sidebar">
             <rs-tabs id="{{viewId}}-form-tabs" class-name="form-tabs">
+                <rs-tab event-key="main" title="Frame">
+                    <div class="inline-composite-container">
+                        <semantic-form-composite-input  for="thing_shows_features_of_thing" 
+                                                        label="Shows features of"
+                                                        new-subject-template="/PC130_shows_features_of/{{{{raw}}}}{{UUID}}{{{{/raw}}}}"
+                                                        fields='[[fieldDefinitions
+                                                                    classtype="http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                                                                    
+                                                                    shows_features_of_range="http://www.researchspace.org/pattern/system/shows_features_of/range"
+                                                                    kind_of_similarity="http://murten/kp/shows_features_of/kind_of_similarity"
+                                                                ]]'>
+            
+                        <semantic-form-hidden-input for="classtype" default-value='http://www.cidoc-crm.org/cidoc-crm/PC130_shows_features_of'> </semantic-form-hidden-input>
+            
+                        <div class="form-inline-inputs">
+                            <div style="flex: 1;">
+                            <semantic-form-autocomplete-input for='shows_features_of_range'  
+                                                                render-header="false"
+                                                                placeholder="Select thing that has similarity with the physical phing" 
+                                                                nested-form-templates='[[> Platform:NestedFormTemplates_things]]'> 
+                            </semantic-form-autocomplete-input> 
+                            </div>
+                            <div style="flex: 1;">
+                            <semantic-form-tree-picker-input  for="kind_of_similarity" 
+                                                                render-header="false"
+                                                                placeholder="Select kind of similarity"
+                                                                close-dropdown-on-selection='true'
+                                                                tree-patterns='{"scheme": "<http://www.researchspace.org/resource/system/vocab/thing_kind_of_similarity>", 
+                                                                                "schemePattern": "?item <http://www.cidoc-crm.org/cidoc-crm/P71i_is_listed_in> <http://www.researchspace.org/resource/system/vocab/thing_kind_of_similarity>",
+                                                                                "relationPattern": "?item crm:P127_has_broader_term ?parent"}'
+            
+                                                                scheme-page-button-config='{"iri": "http://www.researchspace.org/resource/ThinkingFrames",
+                                                                                            "view": "vocabulary-content",
+                                                                                            "scheme": "http://www.researchspace.org/resource/system/vocab/thing_kind_of_similarity",
+                                                                                            "tooltip": "Open list of kind of similarities"
+                                                                                        }'
+                                                                
+                                                                nested-form-template='{{{{raw}}}}{{> forms:Type nested=true editable=true mode="new"
+                                                                                                    scheme="http://www.researchspace.org/resource/system/vocab/thing_kind_of_similarity"
+                                                                                                    entityType="kind of similarity" }}{{{{/raw}}}}'
+            
+                                                                query-item-label='SELECT ?label WHERE {
+                                                                                    ?item skos:prefLabel ?label .
+                                                                                }'>
+                            </semantic-form-tree-picker-input>
+                            </div>
+                        </div>
+                        </semantic-form-composite-input>
+                    </div>
+
+                    <div class="inline-composite-container">
+                        <semantic-form-composite-input  for="thing_has_features_of_thing" 
+                                                        label="Has features of"
+                                                        new-subject-template="/PC130_shows_features_of/{{{{raw}}}}{{UUID}}{{{{/raw}}}}"
+                                                        fields='[[fieldDefinitions
+                                                                    classtype="http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                                                                    
+                                                                    shows_features_of_domain="http://www.researchspace.org/pattern/system/shows_features_of/domain"
+                                                                    kind_of_similarity="http://murten/kp/shows_features_of/kind_of_similarity"
+                                                                ]]'>
+            
+                        <semantic-form-hidden-input for="classtype" default-value='http://www.cidoc-crm.org/cidoc-crm/PC130_shows_features_of'> </semantic-form-hidden-input>
+            
+                        <div class="form-inline-inputs">
+                            <div style="flex: 1;">
+                            <semantic-form-autocomplete-input for='shows_features_of_domain'  
+                                                                render-header="false"
+                                                                placeholder="Select thing that shows similarity with the physical phing" 
+                                                                nested-form-templates='[[> Platform:NestedFormTemplates_things]]'> 
+                            </semantic-form-autocomplete-input> 
+                            </div>
+                            <div style="flex: 1;">
+                            <semantic-form-tree-picker-input  for="kind_of_similarity" 
+                                                                render-header="false"
+                                                                placeholder="Select kind of similarity"
+                                                                close-dropdown-on-selection='true'
+                                                                tree-patterns='{"scheme": "<http://www.researchspace.org/resource/system/vocab/thing_kind_of_similarity>", 
+                                                                                "schemePattern": "?item <http://www.cidoc-crm.org/cidoc-crm/P71i_is_listed_in> <http://www.researchspace.org/resource/system/vocab/thing_kind_of_similarity>",
+                                                                                "relationPattern": "?item crm:P127_has_broader_term ?parent"}'
+            
+                                                                scheme-page-button-config='{"iri": "http://www.researchspace.org/resource/ThinkingFrames",
+                                                                                            "view": "vocabulary-content",
+                                                                                            "scheme": "http://www.researchspace.org/resource/system/vocab/thing_kind_of_similarity",
+                                                                                            "tooltip": "Open list of kind of similarities"
+                                                                                        }'
+                                                                
+                                                                nested-form-template='{{{{raw}}}}{{> forms:Type nested=true editable=true mode="new"
+                                                                                                    scheme="http://www.researchspace.org/resource/system/vocab/thing_kind_of_similarity"
+                                                                                                    entityType="kind of similarity" }}{{{{/raw}}}}'
+            
+                                                                query-item-label='SELECT ?label WHERE {
+                                                                                    ?item skos:prefLabel ?label .
+                                                                                }'>
+                            </semantic-form-tree-picker-input>
+                            </div>
+                        </div>
+                        </semantic-form-composite-input>
+                    </div>
+
+                </rs-tab>
+
                 <rs-tab event-key="detail" title="Details">
                     <div>
                         {{#if apiResourceName}}

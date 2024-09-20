@@ -7,6 +7,9 @@
                           inScheme="http://www.researchspace.org/pattern/system/entity/is_listed_in"
                           entity_formRecord="http://www.researchspace.org/pattern/system/entity/formRecord"
 
+                          activity_has_context="http://murten/kp/has_interpretation_context"                   
+                          visual_recognition_has_type="http://murten/kp/visual_recognition/additional_type"
+
                           entity_image_main_representation="http://www.researchspace.org/pattern/system/entity/main_image"
                           entity_image="http://www.researchspace.org/pattern/system/entity/images"
                           entity_document="http://www.researchspace.org/pattern/system/entity/documents"
@@ -16,7 +19,7 @@
                           entity_has_representation="http://www.researchspace.org/pattern/system/entity/has_representation"
                           entity_represents_range="http://www.researchspace.org/pattern/system/entity/represents_range"
                           entity_web_URL="http://www.researchspace.org/pattern/system/entity/web_URL_embed"
-
+                          
                           entity_primary_appellation="http://www.researchspace.org/pattern/system/entity/primary_appellation"
                           entity_description="http://www.researchspace.org/pattern/system/entity/description"
                           activity_research_question="http://www.researchspace.org/pattern/system/activity/research_question"
@@ -54,6 +57,7 @@
 
                           activity_used_general_technique_type="http://www.researchspace.org/pattern/system/activity/used_general_technique"
                           activity_had_general_purpose_type="http://www.researchspace.org/pattern/system/activity/had_general_purpose_type"
+                          activity_had_visual_recognition_purpose_type="http://murten/kp/visual_recognition/purpose"
                           activity_used_specific_technique_procedure="http://www.researchspace.org/pattern/system/activity/used_specific_technique"
                           activity_used_object_of_type="http://www.researchspace.org/pattern/system/activity/used_object_of_type"
                           
@@ -62,6 +66,9 @@
 
                           attribute_assignment_assigned_to="http://www.researchspace.org/pattern/system/attribute_assignment/assigned_to"
                           attribute_assignment_assigned_entity="http://www.researchspace.org/pattern/system/attribute_assignment/assigned_entity"
+
+                          visual_recognition_about="http://murten/kp/visual_recognition/assigned_to"
+                          recognized="http://murten/kp/visual_recognition/assigned_entity"
                           
                 ]]'>
 
@@ -72,10 +79,104 @@
 
     <mp-splitpane id='{{viewId}}-entity-resource-sidebar' min-size=63 default-size=370 snap-threshold=200 default-open=true always-render=true primary='second' class="entity-resource-sidebar">
       <rs-tabs id="{{viewId}}-form-tabs" class-name="form-tabs"> 
+        <rs-tab event-key="main" title="Visual Recognition">
+            <semantic-form-autocomplete-input for='visual_recognition_about' 
+                        label="Visual recognition about" 
+                        placeholder="Select entity that has assigned the attribute assignment" 
+                        nested-form-templates='[[> Platform:NestedFormTemplates_physicalManMadeThings]]'> 
+            </semantic-form-autocomplete-input> 
+
+            <semantic-form-autocomplete-input for='recognized' 
+                        label="Recognized" 
+                        placeholder="Select entity assigned by the attribute assignment" 
+                        nested-form-templates='[ 
+                        {
+                          "label": "Recognized visual item",
+                          "nestedForm": "{{{{raw}}}}
+                                            {{> \"http://www.researchspace.org/resource/system/forms/RecognizedVisualItem\" nested=true editable=true mode=\"new\"}}
+                                        {{{{/raw}}}}"
+                        }
+                      ]'> 
+            </semantic-form-autocomplete-input> 
+          <div class="inline-composite-container">
+            <semantic-form-composite-input  for="activity_has_context" 
+                                            label="Visual recognition based on resource"
+                                            new-subject-template="/interpretation_context/{{{{raw}}}}{{UUID}}{{{{/raw}}}}"
+                                            fields='[[fieldDefinitions
+                                                        classtype="http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                                                        
+                                                        entity_has_type="http://www.researchspace.org/pattern/system/entity/has_type"
+                                                        
+                                                        used_specific_object_thing_range="http://www.researchspace.org/pattern/system/used_specific_object/thing_range"
+                                                        mode_of_use="http://www.researchspace.org/pattern/system/used_specific_object/mode_of_use"
+                                                    ]]'>
+
+                <semantic-form-hidden-input for="classtype" default-value='http://murtenannotation.local/ver1/Interpretation_Context'> </semantic-form-hidden-input>
+                
+                <div class="form-inline-inputs">
+                  <div style="flex: 1;">
+                    <semantic-form-autocomplete-input for='used_specific_object_thing_range' 
+                                                      label="Thing" 
+                                                      render-header="false"
+                                                      placeholder="Select thing" 
+                                                      nested-form-templates='[[> Platform:NestedFormTemplates_things]]'> 
+                    </semantic-form-autocomplete-input> 
+                  </div>
+                  <div style="flex: 1;">
+                    <semantic-form-tree-picker-input  for="mode_of_use" 
+                                                      label="Mode of use" 
+                                                      render-header="false"
+                                                      placeholder="Select interpretation criterion"
+                                                      close-dropdown-on-selection='true'
+                                                      tree-patterns='{"scheme": "<http://www.researchspace.org/resource/system/vocab/interpretation_criterion>", 
+                                                                      "schemePattern": "?item <http://www.cidoc-crm.org/cidoc-crm/P71i_is_listed_in> <http://www.researchspace.org/resource/system/vocab/interpretation_criterion>",
+                                                                      "relationPattern": "?item crm:P127_has_broader_term ?parent"}'
+
+                                                      scheme-page-button-config='{"iri": "http://www.researchspace.org/resource/ThinkingFrames",
+                                                                                  "view": "vocabulary-content",
+                                                                                  "scheme": "http://www.researchspace.org/resource/system/vocab/interpretation_criterion",
+                                                                                  "tooltip": "interpretation criterion"
+                                                                                }'
+                                                      
+                                                      nested-form-template='{{{{raw}}}}{{> forms:Type nested=true editable=true mode="new"
+                                                                                            scheme="http://www.researchspace.org/resource/system/vocab/interpretation_criterion"
+                                                                                            entityType="mode of use" }}{{{{/raw}}}}'
+
+                                                      query-item-label='SELECT ?label WHERE {
+                                                                          ?item skos:prefLabel ?label .
+                                                                      }'>
+                    </semantic-form-tree-picker-input>
+                  </div>
+                </div>
+            </semantic-form-composite-input>
+          </div>
+
+          <semantic-form-autocomplete-input for='activity_had_visual_recognition_purpose_type' 
+                                            label="Visual recognition purpose" 
+                                            placeholder="Select type" 
+                                            nested-form-templates='[ 
+                                            [[!--  items must be subclasses of E55_Type --]]
+                                            {
+                                              "label": "Visual Recognition purpose",
+                                              "nestedForm": "{{{{raw}}}}{{> forms:Type scheme=\"http://www.researchspace.org/resource/system/vocab/visual_recognition_purpose\" nested=true editable=true mode=\"new\" }}{{{{/raw}}}}"
+                                            }
+                                          ]'> 
+          </semantic-form-autocomplete-input> 
+
+          <semantic-form-autocomplete-input   for='visual_recognition_has_type' 
+                    label="Visual recognition type"
+                    placeholder="Select type" 
+                    nested-form-templates='[ 
+                                            [[!--  items must be subclasses of E55_Type --]]
+                                            {
+                                              "label": "Visual Recognition purpose",
+                                              "nestedForm": "{{{{raw}}}}{{> forms:Type scheme=\"http://www.researchspace.org/resource/system/vocab/visual_recognition_type\" nested=true editable=true mode=\"new\" }}{{{{/raw}}}}"
+                                            }
+                                          ]'> 
+          </semantic-form-autocomplete-input>
+        </rs-tab>
         <rs-tab event-key="detail" title="Details">
           <div>
-            <semantic-form-text-input for="entity_primary_appellation" label="Attribute assignment name" placeholder="Enter attribute assignment name"></semantic-form-text-input>
-
             <semantic-form-text-input for="entity_description" multiline="true" label="Description" placeholder="Enter description/comment"></semantic-form-text-input>
 
             <div class="form-inline-inputs">

@@ -116,10 +116,8 @@ export class IIIFViewerPanel extends Component<IIIFViewerPanelProps, State> {
   private queryImages() {
     const { semanticContext } = this.context;
     const { query, iris, repositories = [semanticContext.repository] } = this.props;
-    console.log("aaa props ", this.props)
 
     const parsedQuery = SparqlUtil.parseQuery(query);
-    console.log("aaa parsedQuery", parsedQuery)
     const querying = iris.map((iri) => {
       const sparql = SparqlClient.setBindings(parsedQuery, { [BINDING_VARIABLE]: Rdf.iri(iri) });
       const requests = repositories.map((repository) =>
@@ -128,7 +126,6 @@ export class IIIFViewerPanel extends Component<IIIFViewerPanelProps, State> {
           images: results.bindings.map(({ image }) => image.value),
         }))
       );
-      console.log("aaa sparql", sparql)
 
       return Kefir.zip(requests);
     });

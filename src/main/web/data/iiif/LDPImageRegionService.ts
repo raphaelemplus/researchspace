@@ -122,7 +122,6 @@ export class LdpRegionServiceClass extends LdpService {
 
   public searchForRecursiveAnnotation(repr_subject_Iri: Rdf.Iri, resourceIri: Rdf.Iri): Kefir.Property<OARegionAnnotation[]> {
     // we assume that regions are always stored in the default repository
-    console.log("aaa", this.selectForRegionsRecursiveAnnotation(repr_subject_Iri, resourceIri))
     return SparqlClient.select(this.selectForRegionsRecursiveAnnotation(repr_subject_Iri, resourceIri), { context: { repository: 'default' } })
       .flatMap((result) => {
         if (result.results.bindings.length === 0) {
@@ -338,7 +337,6 @@ export function convertAnnotationToCompositeValue(annotation: OARegionAnnotation
         })
       );
     } else if (field.id === ImageRegionIsRepresentationOfFrame.id) {
-      console.log("aaa resourceIri", resourceIri)
       values = Immutable.List<Forms.FieldValue>(
         [resourceIri].map((value) => {
           return Forms.FieldValue.fromLabeled({ value });
@@ -350,9 +348,6 @@ export function convertAnnotationToCompositeValue(annotation: OARegionAnnotation
   });
   const subject = Forms.generateSubjectByTemplate(SubjectTemplate, undefined, initial);
   const fields = Immutable.Map<string, Forms.FieldState>(fieldStates);
-  console.log("aaa initial",  initial)
-  console.log("aaa subject",  subject)
-  console.log("aaa fields",  fields)
 
   return Forms.CompositeValue.set(initial, { subject, fields });
 }

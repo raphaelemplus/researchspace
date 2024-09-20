@@ -267,7 +267,7 @@
                             PREFIX : <http://www.researchspace.org/resource/>
                             PREFIX rs: <http://www.researchspace.org/ontology/>
                             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                            SELECT ?region ?repr_subject WHERE {
+                            SELECT ?region ?repr_subject ?image WHERE {
                             
                                                           ?region crmdig:L49_is_primary_area_of ?image.
                               OPTIONAL {?region crm:P190_has_symbolic_content ?regionLabel.}
@@ -392,10 +392,7 @@
                                         </mp-event-trigger>
 
                                         {{> rsp:ResourceDropdownActions viewId=../viewId
-                                                                        iri=region.value
-                                                                        resourceConfig="http://www.researchspace.org/resource/system/resource_configurations_container/data/Image_annotation"
-                                                                        resourceLabel="Image annotation"
-                                                                        resourceFormIRI="http://www.researchspace.org/resource/system/forms/ImageAnnotation"
+                                                                        iri=repr_subject.value
                                         }}
           
                                         [[!-- Delete image annotation  

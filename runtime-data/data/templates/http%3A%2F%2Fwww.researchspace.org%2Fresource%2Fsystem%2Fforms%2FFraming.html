@@ -45,7 +45,7 @@
                           entity_measurement="http://www.researchspace.org/pattern/system/entity/measurement"
                           
                           activity_used_specific_object_domain="http://www.researchspace.org/pattern/system/activity/PC16_used_specific_object"
-                          activity_has_conext="http://murten/kp/has_interpretation_context"                   
+                          activity_has_context="http://murten/kp/has_interpretation_context"                   
                           activity_was_intended_use_of_domain="http://www.researchspace.org/pattern/system/activity/PC19_was_intended_use_of"
                           event_occurred_in_the_presence_of_thing="http://www.researchspace.org/pattern/system/event/occurred_in_the_presence_of_thing"
                           period_took_place_on_physical_thing="http://www.researchspace.org/pattern/system/period/took_place_on_physical_thing"
@@ -63,7 +63,10 @@
 
                           attribute_assignment_assigned_to="http://www.researchspace.org/pattern/system/attribute_assignment/assigned_to"
                           attribute_assignment_assigned_entity="http://www.researchspace.org/pattern/system/attribute_assignment/assigned_entity"
-                          
+
+                          observation_about="http://murten/kp/framing/assigned_to"
+                          observed="http://murten/kp/framing/assigned_entity"
+
                 ]]'>
 
   <div class="form-scroll-area {{#if nested}}nested-form{{/if}}">
@@ -73,6 +76,79 @@
 
     <mp-splitpane id='{{viewId}}-entity-resource-sidebar' min-size=63 default-size=370 snap-threshold=200 default-open=true always-render=true primary='second' class="entity-resource-sidebar">
       <rs-tabs id="{{viewId}}-form-tabs" class-name="form-tabs"> 
+        <rs-tab event-key="main" title="Framing">
+          <semantic-form-autocomplete-input for='observation_about' 
+                    label="Observation about" 
+                    placeholder="Select entity that has assigned the attribute assignment" 
+                    nested-form-templates='[[> Platform:NestedFormTemplates_physicalManMadeThings]]'> 
+          </semantic-form-autocomplete-input> 
+
+          <semantic-form-autocomplete-input for='observed' 
+                    label="Observed" 
+                    placeholder="Select entity assigned by the attribute assignment" 
+                    nested-form-templates='[ 
+                    {
+                      "label": "Frame",
+                      "nestedForm": "{{{{raw}}}}
+                                        {{> \"http://murten/forms/Frame\" nested=true editable=true mode=\"new\"}}
+                                    {{{{/raw}}}}"
+                    }
+                  ]'> 
+          </semantic-form-autocomplete-input> 
+
+          <div class="inline-composite-container">
+          <semantic-form-composite-input  for="activity_has_context" 
+                                        label="Framing based on resource"
+                                        new-subject-template="/interpretation_context/{{{{raw}}}}{{UUID}}{{{{/raw}}}}"
+                                        fields='[[fieldDefinitions
+                                                    classtype="http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                                                    
+                                                    entity_has_type="http://www.researchspace.org/pattern/system/entity/has_type"
+                                                    
+                                                    used_specific_object_thing_range="http://www.researchspace.org/pattern/system/used_specific_object/thing_range"
+                                                    mode_of_use="http://www.researchspace.org/pattern/system/used_specific_object/mode_of_use"
+                                                ]]'>
+
+            <semantic-form-hidden-input for="classtype" default-value='http://murtenannotation.local/ver1/Interpretation_Context'> </semantic-form-hidden-input>
+            
+            <div class="form-inline-inputs">
+              <div style="flex: 1;">
+                <semantic-form-autocomplete-input for='used_specific_object_thing_range' 
+                                                  label="Thing" 
+                                                  render-header="false"
+                                                  placeholder="Select thing" 
+                                                  nested-form-templates='[[> Platform:NestedFormTemplates_things]]'> 
+                </semantic-form-autocomplete-input> 
+              </div>
+              <div style="flex: 1;">
+                <semantic-form-tree-picker-input  for="mode_of_use" 
+                                                  label="Mode of use" 
+                                                  render-header="false"
+                                                  placeholder="Select interpretation criterion"
+                                                  close-dropdown-on-selection='true'
+                                                  tree-patterns='{"scheme": "<http://www.researchspace.org/resource/system/vocab/interpretation_criterion>", 
+                                                                  "schemePattern": "?item <http://www.cidoc-crm.org/cidoc-crm/P71i_is_listed_in> <http://www.researchspace.org/resource/system/vocab/interpretation_criterion>",
+                                                                  "relationPattern": "?item crm:P127_has_broader_term ?parent"}'
+
+                                                  scheme-page-button-config='{"iri": "http://www.researchspace.org/resource/ThinkingFrames",
+                                                                              "view": "vocabulary-content",
+                                                                              "scheme": "http://www.researchspace.org/resource/system/vocab/interpretation_criterion",
+                                                                              "tooltip": "interpretation criterion"
+                                                                            }'
+                                                  
+                                                  nested-form-template='{{{{raw}}}}{{> forms:Type nested=true editable=true mode="new"
+                                                                                        scheme="http://www.researchspace.org/resource/system/vocab/interpretation_criterion"
+                                                                                        entityType="mode of use" }}{{{{/raw}}}}'
+
+                                                  query-item-label='SELECT ?label WHERE {
+                                                                      ?item skos:prefLabel ?label .
+                                                                  }'>
+                </semantic-form-tree-picker-input>
+              </div>
+            </div>
+          </semantic-form-composite-input>
+          </div>
+        </rs-tab>
         <rs-tab event-key="detail" title="Details">
           <div>
             <semantic-form-text-input for="entity_primary_appellation" label="Attribute assignment name" placeholder="Enter attribute assignment name"></semantic-form-text-input>
@@ -488,7 +564,7 @@
         <rs-tab event-key="thing" title="Things">
 
           <div class="inline-composite-container">
-            <semantic-form-composite-input  for="activity_has_conext" 
+            <semantic-form-composite-input  for="activity_has_context" 
                                             label="Used specific object"
                                             new-subject-template="/interpretation_context/{{{{raw}}}}{{UUID}}{{{{/raw}}}}"
                                             fields='[[fieldDefinitions
@@ -778,22 +854,6 @@
                                             label="General purpose (type)" 
                                             placeholder="Select type" 
                                             nested-form-templates='[[> Platform:NestedFormTemplates_types]]'> 
-          </semantic-form-autocomplete-input> 
-
-        </rs-tab>
-
-        <rs-tab event-key="attribution" title="Attribution">
-
-          <semantic-form-autocomplete-input for='attribute_assignment_assigned_to' 
-                                            label="Assigned to" 
-                                            placeholder="Select entity that has assigned the attribute assignment" 
-                                            nested-form-templates='[[> Platform:NestedFormTemplates_allEntities]]'> 
-          </semantic-form-autocomplete-input> 
-
-          <semantic-form-autocomplete-input for='attribute_assignment_assigned_entity' 
-                                            label="Assigned" 
-                                            placeholder="Select entity assigned by the attribute assignment" 
-                                            nested-form-templates='[[> Platform:NestedFormTemplates_allEntities]]'> 
           </semantic-form-autocomplete-input> 
 
         </rs-tab>

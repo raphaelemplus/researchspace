@@ -1,3 +1,9 @@
+- Plat migration:
+    - runtime-data/ldp
+    - runtime-data/data/tmeplates
+    - runtime-data/config/*.prop
+
+
 - added new KP (full insert, select, delete) to link Frame to Recognized_Visualitem
 - created resource for Recognized_Visualitem, Visual_Recognition, Frame and assigned respective logo
 - created new image annotation template to enable recursive image annotation

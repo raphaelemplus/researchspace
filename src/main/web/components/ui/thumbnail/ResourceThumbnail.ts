@@ -111,7 +111,7 @@ export class ResourceThumbnail extends Component<Props, State> {
         }
         return null;
       }
-console.log("aaa imageSrc", imageSrc)
+      console.log("aaa", imageSrc)
       return D.img({
         className,
         src: imageSrc,
